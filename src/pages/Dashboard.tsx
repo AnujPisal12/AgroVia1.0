@@ -1,0 +1,232 @@
+import { Layout } from '@/components/Layout';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { getAnalytics, getAllBatches } from '@/lib/mockData';
+import {
+  Package,
+  AlertTriangle,
+  CheckCircle2,
+  ShieldCheck,
+  TrendingDown,
+  BarChart3,
+  ArrowRight
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Link } from 'react-router-dom';
+import { InteractiveChart } from '@/components/ui/interactive-chart';
+import { useMediaQuery, PullToRefresh } from '@/components/ui/mobile-responsive';
+import { useState } from 'react';
+
+export default function Dashboard() {
+  const [analytics, setAnalytics] = useState(getAnalytics());
+  const isMobile = useMediaQuery('(max-width: 768px)');
+
+  const handleRefresh = async () => {
+    // Simulate data refresh
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    setAnalytics(getAnalytics());
+  };
+
+  const statusData = [
+    { name: 'Fresh', value: analytics.freshBatches, color: 'hsl(142, 70%, 45%)' },
+    { name: 'Consume Soon', value: analytics.consumeSoonBatches, color: 'hsl(35, 90%, 55%)' },
+    { name: 'Expired', value: analytics.expiredBatches, color: 'hsl(0, 72%, 50%)' },
+  ];
+
+  const gradeData = [
+    { name: 'Grade A', value: analytics.gradeStats.A, color: 'hsl(142, 70%, 45%)' },
+    { name: 'Grade B', value: analytics.gradeStats.B, color: 'hsl(35, 90%, 55%)' },
+    { name: 'Grade C', value: analytics.gradeStats.C, color: 'hsl(0, 72%, 50%)' },
+  ];
+
+  const handleChartDrillDown = (data: any) => {
+    console.log('Drill down:', data);
+    // Navigate to detailed view
+  };
+
+  const handleChartExport = (format: 'png' | 'pdf' | 'csv') => {
+    console.log('Export as:', format);
+    // Implement export functionality
+  };
+
+  return (
+    <Layout>
+      <PullToRefresh onRefresh={handleRefresh}>
+        <div className="space-y-6 md:space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+          {/* Hero Section - Mobile Optimized */}
+          <section className="relative overflow-hidden rounded-2xl md:rounded-3xl bg-gradient-to-br from-primary via-primary/90 to-primary/80 text-white shadow-xl p-6 md:p-12">
+            <div className="relative z-10 max-w-2xl space-y-4">
+              <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold tracking-tight text-white mb-2">
+                Welcome back to Agrovia
+              </h1>
+              <p className="text-primary-foreground/90 text-base md:text-lg lg:text-xl max-w-lg leading-relaxed">
+                Your supply chain is currently tracking <span className="font-semibold text-white">{analytics.totalQuantity} kg</span> of produce with <span className="font-semibold text-white">{analytics.freshBatches} active fresh batches</span>.
+              </p>
+              <div className="pt-4 flex flex-col sm:flex-row gap-3 md:gap-4">
+                <Button asChild size={isMobile ? "default" : "lg"} className="bg-white text-primary hover:bg-white/90 border-0 rounded-xl font-semibold shadow-lg shadow-black/10">
+                  <Link to="/farmer">
+                    New Intake
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" size={isMobile ? "default" : "lg"} className="bg-primary/20 hover:bg-primary/30 text-white border-white/20 rounded-xl hover:text-white backdrop-blur-sm">
+                  <Link to="/reports">View Reports</Link>
+                </Button>
+              </div>
+            </div>
+
+            {/* Decorative background elements */}
+            <div className="absolute top-0 right-0 -mt-20 -mr-20 w-64 md:w-96 h-64 md:h-96 bg-white/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute bottom-0 right-20 -mb-20 w-48 md:w-64 h-48 md:h-64 bg-accent/20 rounded-full blur-3xl pointer-events-none" />
+
+            {/* Dashboard Vector/Icon Decoration - Hidden on mobile */}
+            <div className="absolute right-8 top-1/2 -translate-y-1/2 hidden lg:block opacity-20 rotate-12 pointer-events-none">
+              <Package className="w-64 h-64" />
+            </div>
+          </section>
+
+          {/* Key Metrics - Mobile Grid */}
+          <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
+            <Card className="glass-card">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
+                  Total Batches
+                </CardTitle>
+                <div className="h-6 w-6 md:h-8 md:w-8 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Package className="h-3 w-3 md:h-4 md:w-4 text-primary" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-xl md:text-3xl font-bold text-foreground">{analytics.totalBatches}</div>
+                <p className="text-xs text-muted-foreground mt-1 font-medium">
+                  {analytics.totalQuantity} kg tracked
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="glass-card">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
+                  Fresh Batches
+                </CardTitle>
+                <div className="h-6 w-6 md:h-8 md:w-8 rounded-full bg-fresh/10 flex items-center justify-center">
+                  <CheckCircle2 className="h-3 w-3 md:h-4 md:w-4 text-fresh" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-xl md:text-3xl font-bold text-fresh">{analytics.freshBatches}</div>
+                <p className="text-xs text-muted-foreground mt-1 font-medium">
+                  Ready for sale
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="glass-card">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
+                  Consume Soon
+                </CardTitle>
+                <div className="h-6 w-6 md:h-8 md:w-8 rounded-full bg-warning/10 flex items-center justify-center">
+                  <AlertTriangle className="h-3 w-3 md:h-4 md:w-4 text-warning" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-xl md:text-3xl font-bold text-warning">{analytics.consumeSoonBatches}</div>
+                <p className="text-xs text-muted-foreground mt-1 font-medium">
+                  Priority sale
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="glass-card">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-xs md:text-sm font-medium text-muted-foreground">
+                  Sales Blocked
+                </CardTitle>
+                <div className="h-6 w-6 md:h-8 md:w-8 rounded-full bg-expired/10 flex items-center justify-center">
+                  <ShieldCheck className="h-3 w-3 md:h-4 md:w-4 text-expired" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-xl md:text-3xl font-bold text-expired">{analytics.preventedSalesCount}</div>
+                <p className="text-xs text-muted-foreground mt-1 font-medium">
+                  Expired prevented
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+
+        {/* Impact Metrics */}
+        <div className="grid gap-6 md:grid-cols-3">
+          <div className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary/5 to-primary/10 border border-primary/10 p-6 transition-all hover:shadow-lg">
+            <div className="flex items-center gap-4 mb-4">
+              <div className="p-3 bg-white dark:bg-black/20 rounded-2xl shadow-sm">
+                <TrendingDown className="h-6 w-6 text-primary" />
+              </div>
+              <h3 className="font-semibold text-lg text-foreground">Waste Prevention</h3>
+            </div>
+            <div className="text-4xl font-bold text-foreground tracking-tight mb-2">{analytics.potentialWastePrevented} kg</div>
+            <p className="text-muted-foreground text-sm">
+              Estimated food waste reduced through our early warning grading system
+            </p>
+            <div className="absolute -bottom-4 -right-4 w-32 h-32 bg-primary/20 blur-3xl rounded-full group-hover:bg-primary/30 transition-colors" />
+          </div>
+
+          <div className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-fresh/5 to-fresh/10 border border-fresh/10 p-6 transition-all hover:shadow-lg">
+            <div className="flex items-center gap-4 mb-4">
+              <div className="p-3 bg-white dark:bg-black/20 rounded-2xl shadow-sm">
+                <TrendingDown className="h-6 w-6 text-fresh" />
+              </div>
+              <h3 className="font-semibold text-lg text-foreground">Shelf Life</h3>
+            </div>
+            <div className="text-4xl font-bold text-foreground tracking-tight mb-2">+40%</div>
+            <p className="text-muted-foreground text-sm">
+              Average improvement in shelf life utilization with cold storage tracking
+            </p>
+            <div className="absolute -bottom-4 -right-4 w-32 h-32 bg-fresh/20 blur-3xl rounded-full group-hover:bg-fresh/30 transition-colors" />
+          </div>
+
+          <div className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-accent/5 to-accent/10 border border-accent/10 p-6 transition-all hover:shadow-lg">
+            <div className="flex items-center gap-4 mb-4">
+              <div className="p-3 bg-white dark:bg-black/20 rounded-2xl shadow-sm">
+                <BarChart3 className="h-6 w-6 text-accent" />
+              </div>
+              <h3 className="font-semibold text-lg text-foreground">Consumer Trust</h3>
+            </div>
+            <div className="text-4xl font-bold text-foreground tracking-tight mb-2">100%</div>
+            <p className="text-muted-foreground text-sm">
+              Full transparency on every batch via end-to-end QR code tracking
+            </p>
+            <div className="absolute -bottom-4 -right-4 w-32 h-32 bg-accent/20 blur-3xl rounded-full group-hover:bg-accent/30 transition-colors" />
+          </div>
+        </div>
+
+        {/* Charts */}
+        <div className="grid gap-6 md:grid-cols-2 pb-8">
+          <InteractiveChart
+            title="Freshness Distribution"
+            data={statusData}
+            type="pie"
+            height={isMobile ? 250 : 300}
+            onDrillDown={handleChartDrillDown}
+            onExport={handleChartExport}
+            refreshable={true}
+            onRefresh={handleRefresh}
+            realTimeUpdate={true}
+          />
+
+          <InteractiveChart
+            title="Quality Grades"
+            data={gradeData}
+            type="bar"
+            height={isMobile ? 250 : 300}
+            onDrillDown={handleChartDrillDown}
+            onExport={handleChartExport}
+            refreshable={true}
+            onRefresh={handleRefresh}
+          />
+        </div>
+      </div>
+    </PullToRefresh>
+  </Layout>
+  );
+}
